@@ -65,16 +65,17 @@ function handleLocation(req, event) {
 }
 
 function handlePostback(req, event) {
-  const data = event.postback.data;
-  const newEvent = createLineTextEvent(req, event, `DATE: ${data}`);
+  //event.postback = { data: 'selected_date', params: { date: '2021-08-15' } }
+  const { date } = event.postback.params;
+
+  // TODO
+  const newEvent = createLineTextEvent(req, event, `DATE: ${date}`);
   convertToDialogflow(req, newEvent);
 }
 
 async function handleFulfillment(agent) {
   const userId = agent.originalRequest.payload.data.source.userId;
   const { name, latitude, longitude, selected_date } = agent.parameters;
-
-  console.log(agent.parameters);
   const doc = {
     uid: userId,
     name,
