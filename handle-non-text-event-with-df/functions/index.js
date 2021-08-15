@@ -44,6 +44,8 @@ async function handleEvent(req, event) {
           return handleText(req, event);
         case "location":
           return handleLocation(req, event);
+        case "sticker":
+          return handleSticker(req, event);
       }
     case "postback":
       return handlePostback(req, event);
@@ -68,11 +70,56 @@ function handleLocation(req, event) {
   convertToDialogflow(req, newEvent);
 }
 
+function handleSticker(req, event) {
+  const keywords = event.message.keywords || [];
+  // const newEvent = createLineTextEvent(
+  //   req,
+  //   event,
+  //   `LAT : ${message.latitude}, LNG : ${message.longitude}`
+  // );
+  // convertToDialogflow(req, newEvent);
+
+  cline
+    .pushMessage(
+      event.source.userId,
+      {
+        type: "text",
+        text: "ความรู้สึกคือ: " + keywords.join(", "),
+      },
+      true
+    )
+    .then((evt) => {})
+    .catch((e) => {});
+
+  const newEvent = createLineTextEvent(
+    req,
+    event,
+    `EMOTION: ${keywords.join(", ")}`
+  );
+  convertToDialogflow(req, newEvent);
+}
+
 function handlePostback(req, event) {
   //event.postback = { data: 'selected_date', params: { date: '2021-08-15' } }
   const { date } = event.postback.params;
 
-  // TODO
+  client
+    .pushMessage(
+      event.source.userId,
+      [
+        {
+          type: "text",
+          text: "คุณเลือกวันที่ " + date,
+        },
+        {
+          type: "text",
+          text: "ส่งสติ๊กเกอร์แสดงความรู้สึกของคุณตอนนี้",
+        },
+      ],
+      true
+    )
+    .then((evt) => {})
+    .catch((e) => {});
   const newEvent = createLineTextEvent(req, event, `DATE: ${date}`);
   convertToDialogflow(req, newEvent);
 }
@@ -209,7 +256,7 @@ async function handleFulfillment(agent) {
                   },
                   {
                     type: "text",
-                    text: `${latitude} ${longitude}`,
+                    text: `${latitude}, ${longitude}`,
                     wrap: true,
                     color: "#666666",
                     size: "sm",
