@@ -2,7 +2,7 @@ const functions = require("firebase-functions");
 const line = require("@line/bot-sdk");
 const express = require("express");
 const firebase = require("firebase-admin");
-const { WebhookClient } = require("dialogflow-fulfillment");
+const { WebhookClient, Payload } = require("dialogflow-fulfillment");
 
 firebase.initializeApp({});
 
@@ -84,7 +84,106 @@ async function handleFulfillment(agent) {
     selected_date: Date.parse(selected_date),
   };
   await firebase.firestore().collection("member").doc(userId).set(doc);
-  agent.add("บันทึกข้อมูลสำเร็จแล้ว");
+  // agent.add("บันทึกข้อมูลสำเร็จแล้ว");
+  const msg = {
+    type: "flex",
+    altText: "Flex Message",
+    contents: {
+      type: "bubble",
+      body: {
+        type: "box",
+        layout: "vertical",
+        contents: [
+          {
+            type: "text",
+            text: "ขอบคุณสำหรับการลงทะเบียน",
+            weight: "bold",
+            size: "xl",
+            contents: [],
+          },
+          {
+            type: "box",
+            layout: "vertical",
+            margin: "lg",
+            spacing: "sm",
+            contents: [
+              {
+                type: "text",
+                text: "ข้อมูลของคุณคือ",
+              },
+              {
+                type: "box",
+                layout: "baseline",
+                spacing: "sm",
+                contents: [
+                  {
+                    type: "text",
+                    text: "ชื่อ",
+                    color: "#aaaaaa",
+                    size: "sm",
+                  },
+                  {
+                    type: "text",
+                    text: `${name}`,
+                    wrap: true,
+                    color: "#666666",
+                    size: "sm",
+                  },
+                ],
+              },
+              {
+                type: "box",
+                layout: "baseline",
+                spacing: "sm",
+                contents: [
+                  {
+                    type: "text",
+                    text: "ตำแหน่ง",
+                    color: "#aaaaaa",
+                    size: "sm",
+                  },
+                  {
+                    type: "text",
+                    text: `${latitude} ${longitude}`,
+                    wrap: true,
+                    color: "#666666",
+                    size: "sm",
+                  },
+                ],
+              },
+              {
+                type: "box",
+                layout: "baseline",
+                spacing: "sm",
+                contents: [
+                  {
+                    type: "text",
+                    text: "วันที",
+                    color: "#aaaaaa",
+                    size: "sm",
+                  },
+                  {
+                    type: "text",
+                    text: `${selected_date}`,
+                    wrap: true,
+                    color: "#666666",
+                    size: "sm",
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    },
+  };
+
+  const payload = new Payload(agent.LINE, msg, {
+    sendAsMessage: true,
+    rawPayload: false,
+  });
+
+  agent.add(payload);
 }
 
 exports.api = functions.region("asia-northeast1").https.onRequest(app);
