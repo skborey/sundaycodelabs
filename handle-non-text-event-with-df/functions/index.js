@@ -16,6 +16,8 @@ const config = {
   channelAccessToken: functions.config().line.channel_access_token,
   channelSecret: functions.config().line.channel_secret,
 };
+
+const client = new line.Client(config);
 const app = express();
 
 app.post("/webhook", line.middleware(config), (req, res) => {
@@ -45,6 +47,8 @@ async function handleEvent(req, event) {
       }
     case "postback":
       return handlePostback(req, event);
+    case "follow":
+      return handleFollower(req, event);
     default:
       throw new Error(`Unknown event: ${JSON.stringify(event)}`);
   }
@@ -71,6 +75,67 @@ function handlePostback(req, event) {
   // TODO
   const newEvent = createLineTextEvent(req, event, `DATE: ${date}`);
   convertToDialogflow(req, newEvent);
+}
+
+function handleFollower(req, event) {
+  const msg = {
+    type: "flex",
+    altText: "Flex Message",
+    contents: {
+      type: "bubble",
+      body: {
+        type: "box",
+        layout: "vertical",
+        contents: [
+          {
+            type: "text",
+            text: "ยินดีต้อนรับ กรุณาลงทะเบียน ก่อนเริ่มต้นใช้งาน",
+            weight: "regular",
+            size: "md",
+          },
+        ],
+      },
+      footer: {
+        type: "box",
+        layout: "horizontal",
+        spacing: "sm",
+        contents: [
+          {
+            type: "button",
+            style: "link",
+            height: "sm",
+            action: {
+              type: "message",
+              label: "ลงทะเบียน",
+              text: "ลงทะเบียน",
+            },
+          },
+          {
+            type: "button",
+            style: "link",
+            height: "sm",
+            action: {
+              type: "message",
+              label: "ไว้ทีหลัง",
+              text: "ไว้ทีหลัง",
+            },
+          },
+          {
+            type: "spacer",
+            size: "sm",
+          },
+        ],
+      },
+    },
+  };
+  client
+    .pushMessage(event.source.userId, msg, true)
+    .then((evt) => {
+      // console.log(evt);
+    })
+    .catch((e) => {
+      // console.log(e);
+    });
 }
 
 async function handleFulfillment(agent) {
