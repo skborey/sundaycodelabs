@@ -101,27 +101,26 @@ function handleSticker(req, event) {
 
 function handlePostback(req, event) {
   //event.postback = { data: 'selected_date', params: { date: '2021-08-15' } }
-  const { date } = event.postback.params;
-
-  client
-    .pushMessage(
-      event.source.userId,
-      [
-        {
-          type: "text",
-          text: "คุณเลือกวันที่ " + date,
-        },
-        {
-          type: "text",
-          text: "ส่งสติ๊กเกอร์แสดงความรู้สึกของคุณตอนนี้",
-        },
-      ],
-      true
-    )
-    .then((evt) => {})
-    .catch((e) => {});
-  const newEvent = createLineTextEvent(req, event, `DATE: ${date}`);
-  convertToDialogflow(req, newEvent);
+  // const { date } = event.postback.params;
+  // client
+  //   .pushMessage(
+  //     event.source.userId,
+  //     [
+  //       {
+  //         type: "text",
+  //         text: "คุณเลือกวันที่ " + date,
+  //       },
+  //       {
+  //         type: "text",
+  //         text: "ส่งสติ๊กเกอร์แสดงความรู้สึกของคุณตอนนี้",
+  //       },
+  //     ],
+  //     true
+  //   )
+  //   .then((evt) => {})
+  //   .catch((e) => {});
+  // const newEvent = createLineTextEvent(req, event, `DATE: ${date}`);
+  // convertToDialogflow(req, newEvent);
 }
 
 function handleFollower(req, event) {
@@ -136,7 +135,7 @@ function handleFollower(req, event) {
         contents: [
           {
             type: "text",
-            text: "ยินดีต้อนรับ กรุณาลงทะเบียน ก่อนเริ่มต้นใช้งาน",
+            text: "ยินดีต้อนรับ กรุณาลงทะเบียน",
             weight: "regular",
             size: "md",
           },
